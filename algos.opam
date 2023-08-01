@@ -1,0 +1,13 @@
+opam-version: "2.0"
+name: "algos"
+maintainer: "Jay Mody <jaykmody@gmail.com>"
+authors: "Jay Mody <jaykmody@gmail.com>"
+description: "Simple data structure and algorithm implementations in OCaml."
+license: "MIT"
+homepage: "https://github.com/jaymody/ocaml-algos"
+bug-reports: "https://github.com/jaymody/ocaml-algos/issues"
+build: ["dune" "build" "-p" name "-j" jobs]
+depends: [
+    "ocaml" {>= "4.14.0"}
+    "dune"
+]
