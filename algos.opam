@@ -8,6 +8,6 @@ homepage: "https://github.com/jaymody/ocaml-algos"
 bug-reports: "https://github.com/jaymody/ocaml-algos/issues"
 build: ["dune" "build" "-p" name "-j" jobs]
 depends: [
-    "ocaml" {>= "4.14.0"}
+    "ocaml" {>= "4.14" & < "5.2"} # < "5.2" is required for compatability with ocaml-lsp-server
     "dune"
 ]
