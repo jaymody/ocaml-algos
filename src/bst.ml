@@ -8,17 +8,19 @@ module type S = sig
   val empty : 'a t
 
   (* Adds the key-value pair to the tree. If the key is already in the tree,
-     the value is updated. Takes O(log2 n) time. *)
+     the value is updated. Takes O(log2 n) time on average, O(n) in the worst
+     case. *)
   val add : key -> 'a -> 'a t -> 'a t
 
   (* Removes the entry that matches the provided key from the tree, returning an
      option holding the removed value and the new tree with the entry removed.
      If the key is in the tree, None is returned (along with the original tree
-     untouched). Takes O(log2 n) time. *)
+     untouched). Takes O(log2 n) time on average, O(n) in the worst case. *)
   val remove : key -> 'a t -> 'a t * 'a option
 
   (* Finds the entry matching the given key and returns the associated value. If
-     there is no match, returns None. Takes O(log2 n) time. *)
+     there is no match, returns None. Takes O(log2 n) time on average, O(n) in
+     the worst case. *)
   val find : key -> 'a t -> 'a option
 
   (* Returns a list of the key-value pairs in the tree in ascending order.
