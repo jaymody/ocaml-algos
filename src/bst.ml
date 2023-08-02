@@ -93,12 +93,10 @@ module Make (Key : Comparable) = struct
     let rec aux = function
       | Empty -> None
       | Node { l; k; v; r } ->
-        if k = k'
-        then Some v
-        else (
-          match aux l with
-          | None -> aux r
-          | Some _ as x -> x)
+        (match cmp k k' with
+         | Eq -> Some v
+         | Lt -> aux l
+         | Gt -> aux r)
     in
     aux t
   ;;
