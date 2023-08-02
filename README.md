@@ -18,3 +18,5 @@ Run tests:
 ```shell
 dune runtest
 ```
+
+Make sure you're running `eval $(opam env)` before running `dune` commands to make sure dune is pointing to the correct local version at `./_opam/bin/dune`.
