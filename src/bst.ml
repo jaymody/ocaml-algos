@@ -57,12 +57,10 @@ module Make (Key : Comparable) = struct
   let remove k' t =
     let rec pop_left_successor = function
       | Empty -> invalid_arg "unreachable"
+      | Node { l = Empty; k; v; r } -> (k, v), r
       | Node { l; k; v; r } ->
-        (match l with
-         | Empty -> (k, v), r
-         | _ ->
-           let succesor, l = pop_left_successor l in
-           succesor, Node { l; k; v; r })
+        let succesor, l = pop_left_successor l in
+        succesor, Node { l; k; v; r }
     in
     let rec aux = function
       | Empty -> None, Empty
