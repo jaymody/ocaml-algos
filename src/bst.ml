@@ -1,33 +1,5 @@
 open Order
 
-module type S = sig
-  type key
-  type 'a t
-
-  (* Create an empty tree. *)
-  val empty : 'a t
-
-  (* Adds the key-value pair to the tree. If the key is already in the tree,
-     the value is updated. Takes O(log2 n) time on average, O(n) in the worst
-     case. *)
-  val add : key -> 'a -> 'a t -> 'a t
-
-  (* Removes the entry that matches the provided key from the tree, returning an
-     option holding the removed value and the new tree with the entry removed.
-     If the key is in the tree, None is returned (along with the original tree
-     untouched). Takes O(log2 n) time on average, O(n) in the worst case. *)
-  val remove : key -> 'a t -> 'a t * 'a option
-
-  (* Finds the entry matching the given key and returns the associated value. If
-     there is no match, returns None. Takes O(log2 n) time on average, O(n) in
-     the worst case. *)
-  val find : key -> 'a t -> 'a option
-
-  (* Returns a list of the key-value pairs in the tree in ascending order.
-     Takes O(n) time. *)
-  val to_list : 'a t -> (key * 'a) list
-end
-
 module Make (Key : Comparable) = struct
   type key = Key.t
 
@@ -42,6 +14,9 @@ module Make (Key : Comparable) = struct
 
   let empty = Empty
 
+  (* Adds the key-value pair to the tree. If the key is already in the tree,
+     the value is updated. Takes O(log2 n) time on average, O(n) in the worst
+     case. *)
   let add k' v' t =
     let rec aux = function
       | Empty -> Node { l = Empty; k = k'; v = v'; r = Empty }
@@ -54,6 +29,10 @@ module Make (Key : Comparable) = struct
     aux t
   ;;
 
+  (* Removes the entry that matches the provided key from the tree, returning an
+     option holding the removed value and the new tree with the entry removed.
+     If the key is in the tree, None is returned (along with the original tree
+     untouched). Takes O(log2 n) time on average, O(n) in the worst case. *)
   let remove k' t =
     let rec pop_left_successor = function
       | Empty -> invalid_arg "unreachable"
@@ -86,6 +65,9 @@ module Make (Key : Comparable) = struct
     aux t
   ;;
 
+  (* Finds the entry matching the given key and returns the associated value. If
+     there is no match, returns None. Takes O(log2 n) time on average, O(n) in
+     the worst case. *)
   let find k' t =
     (* Binary search. *)
     let rec aux = function
@@ -99,6 +81,8 @@ module Make (Key : Comparable) = struct
     aux t
   ;;
 
+  (* Returns a list of the key-value pairs in the tree in ascending order.
+     Takes O(n) time. *)
   let to_list t =
     (* In order traversal. *)
     let rec aux acc = function
