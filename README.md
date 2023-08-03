@@ -19,4 +19,9 @@ Run tests:
 dune runtest
 ```
 
-Make sure you're running `eval $(opam env)` before running `dune` commands to make sure dune is pointing to the correct local version at `./_opam/bin/dune`.
+For testing/debugging, it's useful to look at outputs directly using `utop`:
+```shell
+dune utop
+```
+
+Make sure you're running `eval $(opam env)` before running `dune` to make sure you're using the local switches dune binary and not some other dune binary.
