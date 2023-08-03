@@ -4,7 +4,7 @@ module type Comparable = sig
   val compare : t -> t -> int
 end
 
-type ordering =
+type comparison =
   | Eq
   | Gt
   | Lt

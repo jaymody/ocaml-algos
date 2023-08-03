@@ -1,4 +1,4 @@
-open Order
+open Compare
 
 module Make (Key : Comparable) = struct
   type key = Key.t
