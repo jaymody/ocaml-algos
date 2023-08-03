@@ -5,74 +5,55 @@ module Make (Key : Comparable) = struct
 
   type 'a t =
     | Empty
-    | Node of
-        { l : 'a t
-        ; k : key
-        ; v : 'a
-        ; r : 'a t
-        }
+    | Node of 'a t * key * 'a * 'a t
 
   let empty = Empty
+  let create l k v r = Node (l, k, v, r)
 
-  (* Adds the key-value pair to the tree. If the key is already in the tree,
-     the value is updated. Takes O(log2 n) time on average, O(n) in the worst
-     case. *)
   let add k' v' t =
     let rec aux = function
-      | Empty -> Node { l = Empty; k = k'; v = v'; r = Empty }
-      | Node { l; k; v; r } ->
+      | Empty -> create Empty k' v' empty
+      | Node (l, k, v, r) ->
         (match cmp k' k with
-         | Eq -> Node { l; k; v = v'; r }
-         | Lt -> Node { l = aux l; k; v; r }
-         | Gt -> Node { l; k; v; r = aux r })
+         | Eq -> create l k v' r
+         | Lt -> create (aux l) k v r
+         | Gt -> create l k v (aux r))
     in
     aux t
   ;;
 
-  (* Removes the entry that matches the provided key from the tree, returning an
-     option holding the removed value and the new tree with the entry removed.
-     If the key is in the tree, None is returned (along with the original tree
-     untouched). Takes O(log2 n) time on average, O(n) in the worst case. *)
   let remove k' t =
-    let rec pop_left_successor = function
+    let rec pop_successor = function
       | Empty -> invalid_arg "unreachable"
-      | Node { l = Empty; k; v; r } -> (k, v), r
-      | Node { l; k; v; r } ->
-        let succesor, l = pop_left_successor l in
-        succesor, Node { l; k; v; r }
+      | Node (Empty, k, v, r) -> (k, v), r
+      | Node (l, k, v, r) ->
+        let succesor, l = pop_successor l in
+        succesor, create l k v r
     in
     let rec aux = function
       | Empty -> None, Empty
-      | Node { l; k; v; r } ->
+      | Node (l, k, v, r) ->
         (match cmp k' k with
          | Eq ->
-           (* Replaces the deleted node with it's left successor (the smallest
-              node to the right of this node). If the right node is Empty,
-              meaning there is no left successor, we simply replace the current
-              node with it's left subtree. *)
            (match r with
             | Empty -> Some v, l
             | _ ->
-              let (k, v), r = pop_left_successor r in
-              Some v, Node { l; k; v; r })
+              let (k, v), r = pop_successor r in
+              Some v, create l k v r)
          | Lt ->
            let e, l = aux l in
-           e, Node { l; k; v; r }
+           e, create l k v r
          | Gt ->
            let e, r = aux r in
-           e, Node { l; k; v; r })
+           e, create l k v r)
     in
     aux t
   ;;
 
-  (* Finds the entry matching the given key and returns the associated value. If
-     there is no match, returns None. Takes O(log2 n) time on average, O(n) in
-     the worst case. *)
   let find k' t =
-    (* Binary search. *)
     let rec aux = function
       | Empty -> None
-      | Node { l; k; v; r } ->
+      | Node (l, k, v, r) ->
         (match cmp k' k with
          | Eq -> Some v
          | Lt -> aux l
@@ -81,13 +62,10 @@ module Make (Key : Comparable) = struct
     aux t
   ;;
 
-  (* Returns a list of the key-value pairs in the tree in ascending order.
-     Takes O(n) time. *)
   let to_list t =
-    (* In order traversal. *)
     let rec aux acc = function
       | Empty -> acc
-      | Node { l; k; v; r } -> aux ((k, v) :: aux acc r) l
+      | Node (l, k, v, r) -> aux ((k, v) :: aux acc r) l
     in
     aux [] t
   ;;
