@@ -14,7 +14,24 @@ module Make (Key : Comparable) = struct
     | Node (_, _, _, _, h) -> h
   ;;
 
-  let create l k v r = Node (l, k, v, r, 1 + max (height l) (height r))
+  let create l k v r =
+    let make (l, k, v, r) = Node (l, k, v, r, 1 + max (height l) (height r)) in
+    let rotate_left (k, v, l) (rl, rk, rv, rr) = make (l, k, v, rl), rk, rv, rr in
+    let rotate_right (k, v, r) (ll, lk, lv, lr) = ll, lk, lv, make (lr, k, v, r) in
+    make
+      (match l, r with
+       | _, Node (rl, rk, rv, rr, _) when height rr > height l ->
+         rotate_left (k, v, l) (rl, rk, rv, rr)
+       | _, Node ((Node (rll, rlk, rlv, rlr, _) as rl), rk, rv, rr, _)
+         when height rl > height l ->
+         rotate_right (rk, rv, rr) (rll, rlk, rlv, rlr) |> rotate_left (k, v, l)
+       | Node (ll, lk, lv, (Node (lrl, lrk, lrv, lrr, _) as lr), _), _
+         when height lr > height r ->
+         rotate_left (lk, lv, ll) (lrl, lrk, lrv, lrr) |> rotate_right (k, v, r)
+       | Node (ll, lk, lv, lr, _), _ when height ll > height r ->
+         rotate_right (k, v, r) (ll, lk, lv, lr)
+       | _ -> l, k, v, r)
+  ;;
 
   let add k' v' t =
     let rec aux = function

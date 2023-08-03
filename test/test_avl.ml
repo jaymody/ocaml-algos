@@ -21,15 +21,14 @@ let () =
   let list = List.init 10000 (fun x -> x) in
   let tree = List.fold_left (fun tree num -> add num (-num) tree) empty list in
   assert (to_list tree |> List.map fst = list);
-  (* assert (calc_height tree < 20); *)
-  (* assert (is_height_balanced tree); *)
+  assert (calc_height tree < 20);
+  assert (is_height_balanced tree);
   let list = List.init (10000 - 5000) (fun x -> x) in
   let tree = List.fold_left (fun tree num -> snd (remove num tree)) tree list in
-  assert (to_list tree |> List.map (fun (num, _) -> num - 5000) = list)
-  (* assert (calc_height tree < 15); *)
-  (* assert (is_height_balanced tree) *)
+  assert (to_list tree |> List.map (fun (num, _) -> num - 5000) = list);
+  assert (calc_height tree < 15);
+  assert (is_height_balanced tree)
 ;;
-
 
 (* Same tests as BST *)
 
