@@ -16,7 +16,7 @@ module Make (Key : Comparable) = struct
   let empty = Empty
 
   let height = function
-    | Empty -> 1
+    | Empty -> 0
     | Node { h; _ } -> h
   ;;
 
