@@ -1,8 +1,8 @@
 open Algos
-module StringBST = Bst.Make (String)
+module StringBst = Bst.Make (String)
 
 let () =
-  let open StringBST in
+  let open StringBst in
   let tree = empty |> add "banana" 5 |> add "apple" 10 |> add "dog" 0 |> add "cat" (-3) in
   assert (find "apple" tree = Some 10);
   assert (find "banana" tree = Some 5);
@@ -19,10 +19,10 @@ let () =
   assert (find "apple" tree = Some 20)
 ;;
 
-module IntBST = Bst.Make (Int)
+module IntBst = Bst.Make (Int)
 
 let () =
-  let open IntBST in
+  let open IntBst in
   let tree =
     empty
     |> add 5 (-5)
