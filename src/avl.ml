@@ -59,8 +59,35 @@ module Make (Key : Comparable) = struct
   ;;
 
   let remove k' t =
-    let _ = k', t in
-    invalid_arg "not implemented"
+    let rec pop_left_successor = function
+      | Empty -> invalid_arg "unreachable"
+      | Node { l = Empty; k; v; r; _ } -> (k, v), r
+      | Node { l; k; v; r; h } ->
+        let succesor, l = pop_left_successor l in
+        succesor, balance (Node { l; k; v; r; h })
+    in
+    let rec aux = function
+      | Empty -> None, Empty
+      | Node { l; k; v; r; h } ->
+        (match cmp k' k with
+         | Eq ->
+           (* Replaces the deleted node with it's left successor (the smallest
+              node to the right of this node). If the right node is Empty,
+              meaning there is no left successor, we simply replace the current
+              node with it's left subtree. *)
+           (match r with
+            | Empty -> Some v, l
+            | _ ->
+              let (k, v), r = pop_left_successor r in
+              Some v, balance (Node { l; k; v; r; h }))
+         | Lt ->
+           let e, l = aux l in
+           e, balance (Node { l; k; v; r; h })
+         | Gt ->
+           let e, r = aux r in
+           e, balance (Node { l; k; v; r; h }))
+    in
+    aux t
   ;;
 
   let find k' t =
