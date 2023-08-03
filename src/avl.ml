@@ -15,13 +15,14 @@ module Make (Key : Comparable) = struct
 
   let empty = Empty
 
+  let height = function
+    | Empty -> 1
+    | Node { h; _ } -> h
+  ;;
+
   (* Balance requires the pre-condition that the nodes below it have correctly
      labeled hieghts. The height of the current node need not be correct. *)
   let balance =
-    let height = function
-      | Empty -> 1
-      | Node { h; _ } -> h
-    in
     let rotate_left = function
       | Node { l; k; v; r = Node { l = rl; k = rk; v = rv; r = rr; h = n2 }; _ } ->
         Node { l = Node { l; k; v; r = rl; h = n2 - 1 }; k = rk; v = rv; r = rr; h = n2 }
