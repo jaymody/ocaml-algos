@@ -58,11 +58,12 @@ module Make (Key : Comparable) = struct
       | Node (l, k, v, r, _) ->
         (match cmp k' k with
          | Eq ->
-           (match r with
-            | Empty -> Some v, l
-            | _ ->
-              let (k, v), r = pop_successor r in
-              Some v, create l k v r)
+           ( Some v
+           , (match r with
+              | Empty -> l
+              | _ ->
+                let (k, v), r = pop_successor r in
+                create l k v r) )
          | Lt ->
            let e, l = aux l in
            e, create l k v r
