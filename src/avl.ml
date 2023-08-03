@@ -46,11 +46,11 @@ module Make (Key : Comparable) = struct
   ;;
 
   let remove k' t =
-    let rec pop_successor = function
-      | Empty -> invalid_arg "unreachable"
-      | Node (Empty, k, v, r, _) -> (k, v), r
-      | Node (l, k, v, r, _) ->
-        let succesor, l = pop_successor l in
+    let rec pop_successor l k v r =
+      match l with
+      | Empty -> (k, v), r
+      | Node (ll, lk, lv, lr, _) ->
+        let succesor, l = pop_successor ll lk lv lr in
         succesor, create l k v r
     in
     let rec aux = function
@@ -61,8 +61,8 @@ module Make (Key : Comparable) = struct
            ( Some v
            , (match r with
               | Empty -> l
-              | _ ->
-                let (k, v), r = pop_successor r in
+              | Node (rl, rk, rv, rr, _) ->
+                let (k, v), r = pop_successor rl rk rv rr in
                 create l k v r) )
          | Lt ->
            let e, l = aux l in
