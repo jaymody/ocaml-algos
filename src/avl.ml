@@ -50,7 +50,7 @@ module Make (Key : Comparable) = struct
     let rec aux = function
       | Empty -> Node { l = Empty; k = k'; v = v'; r = Empty; h = 1 }
       | Node { l; k; v; r; h } ->
-        (match cmp k k' with
+        (match cmp k' k with
          | Eq -> Node { l; k; v = v'; r; h }
          | Lt -> balance (Node { l = aux l; k; v; r; h })
          | Gt -> balance (Node { l; k; v; r = aux r; h }))
@@ -68,7 +68,7 @@ module Make (Key : Comparable) = struct
     let rec aux = function
       | Empty -> None
       | Node { l; k; v; r; _ } ->
-        (match cmp k k' with
+        (match cmp k' k with
          | Eq -> Some v
          | Lt -> aux l
          | Gt -> aux r)
@@ -80,7 +80,7 @@ module Make (Key : Comparable) = struct
     (* In order traversal. *)
     let rec aux acc = function
       | Empty -> acc
-      | Node { l; k; v; r; _ } -> aux ((k, v) :: aux acc l) r
+      | Node { l; k; v; r; _ } -> aux ((k, v) :: aux acc r) l
     in
     aux [] t
   ;;

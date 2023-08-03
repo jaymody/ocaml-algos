@@ -21,7 +21,7 @@ module Make (Key : Comparable) = struct
     let rec aux = function
       | Empty -> Node { l = Empty; k = k'; v = v'; r = Empty }
       | Node { l; k; v; r } ->
-        (match cmp k k' with
+        (match cmp k' k with
          | Eq -> Node { l; k; v = v'; r }
          | Lt -> Node { l = aux l; k; v; r }
          | Gt -> Node { l; k; v; r = aux r })
@@ -44,7 +44,7 @@ module Make (Key : Comparable) = struct
     let rec aux = function
       | Empty -> None, Empty
       | Node { l; k; v; r } ->
-        (match cmp k k' with
+        (match cmp k' k with
          | Eq ->
            (* Replaces the deleted node with it's left successor (the smallest
               node to the right of this node). If the right node is Empty,
@@ -73,7 +73,7 @@ module Make (Key : Comparable) = struct
     let rec aux = function
       | Empty -> None
       | Node { l; k; v; r } ->
-        (match cmp k k' with
+        (match cmp k' k with
          | Eq -> Some v
          | Lt -> aux l
          | Gt -> aux r)
@@ -87,7 +87,7 @@ module Make (Key : Comparable) = struct
     (* In order traversal. *)
     let rec aux acc = function
       | Empty -> acc
-      | Node { l; k; v; r } -> aux ((k, v) :: aux acc l) r
+      | Node { l; k; v; r } -> aux ((k, v) :: aux acc r) l
     in
     aux [] t
   ;;
