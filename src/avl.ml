@@ -17,12 +17,16 @@ open Compare
 module Make (Key : Comparable) : sig
   type key = Key.t
 
+  (* Stores left, key, value, right, height, size *)
   type 'a t =
     | Empty
-    | Node of 'a t * key * 'a * 'a t * int
+    | Node of 'a t * key * 'a * 'a t * int * int
 
   (* Returns an empty tree, which is used for initialization. *)
   val empty : 'a t
+
+  (* Returns the number of nodes in the tree. *)
+  val size : 'a t -> int
 
   (* Inserts the key-value pair into the tree. Duplicates keys are allowed, in
      the event of two keys being equal, the new key-value pair will be added
@@ -56,29 +60,36 @@ end = struct
 
   type 'a t =
     | Empty
-    | Node of 'a t * key * 'a * 'a t * int
+    | Node of 'a t * key * 'a * 'a t * int * int
 
   let empty = Empty
+
+  let size = function
+    | Empty -> 0
+    | Node (_, _, _, _, _, n) -> n
+  ;;
 
   let create l k v r =
     let height = function
       | Empty -> 0
-      | Node (_, _, _, _, h) -> h
+      | Node (_, _, _, _, h, _) -> h
     in
-    let make (l, k, v, r) = Node (l, k, v, r, 1 + max (height l) (height r)) in
+    let make (l, k, v, r) =
+      Node (l, k, v, r, 1 + max (height l) (height r), 1 + size l + size r)
+    in
     let rotate_left (k, v, l) (rl, rk, rv, rr) = make (l, k, v, rl), rk, rv, rr in
     let rotate_right (k, v, r) (ll, lk, lv, lr) = ll, lk, lv, make (lr, k, v, r) in
     make
       (match l, r with
-       | _, Node (rl, rk, rv, rr, _) when height rr > height l ->
+       | _, Node (rl, rk, rv, rr, _, _) when height rr > height l ->
          rotate_left (k, v, l) (rl, rk, rv, rr)
-       | _, Node ((Node (rll, rlk, rlv, rlr, _) as rl), rk, rv, rr, _)
+       | _, Node ((Node (rll, rlk, rlv, rlr, _, _) as rl), rk, rv, rr, _, _)
          when height rl > height l ->
          rotate_right (rk, rv, rr) (rll, rlk, rlv, rlr) |> rotate_left (k, v, l)
-       | Node (ll, lk, lv, (Node (lrl, lrk, lrv, lrr, _) as lr), _), _
+       | Node (ll, lk, lv, (Node (lrl, lrk, lrv, lrr, _, _) as lr), _, _), _
          when height lr > height r ->
          rotate_left (lk, lv, ll) (lrl, lrk, lrv, lrr) |> rotate_right (k, v, r)
-       | Node (ll, lk, lv, lr, _), _ when height ll > height r ->
+       | Node (ll, lk, lv, lr, _, _), _ when height ll > height r ->
          rotate_right (k, v, r) (ll, lk, lv, lr)
        | _ -> l, k, v, r)
   ;;
@@ -86,7 +97,7 @@ end = struct
   let insert k' v' t =
     let rec aux = function
       | Empty -> create Empty k' v' empty
-      | Node (l, k, v, r, _) ->
+      | Node (l, k, v, r, _, _) ->
         (match cmp k' k with
          | Lt | Eq -> create (aux l) k v r
          | Gt -> create l k v (aux r))
@@ -97,7 +108,7 @@ end = struct
   let upsert k' v' t =
     let rec aux = function
       | Empty -> create Empty k' v' empty
-      | Node (l, k, v, r, _) ->
+      | Node (l, k, v, r, _, _) ->
         (match cmp k' k with
          | Eq -> create l k v' r
          | Lt -> create (aux l) k v r
@@ -110,19 +121,19 @@ end = struct
     let rec pop_successor l k v r =
       match l with
       | Empty -> (k, v), r
-      | Node (ll, lk, lv, lr, _) ->
+      | Node (ll, lk, lv, lr, _, _) ->
         let succesor, l = pop_successor ll lk lv lr in
         succesor, create l k v r
     in
     let rec aux = function
       | Empty -> None, Empty
-      | Node (l, k, v, r, _) ->
+      | Node (l, k, v, r, _, _) ->
         (match cmp k' k with
          | Eq ->
            ( Some v
            , (match r with
               | Empty -> l
-              | Node (rl, rk, rv, rr, _) ->
+              | Node (rl, rk, rv, rr, _, _) ->
                 let (k, v), r = pop_successor rl rk rv rr in
                 create l k v r) )
          | Lt ->
@@ -138,7 +149,7 @@ end = struct
   let find k' t =
     let rec aux = function
       | Empty -> None
-      | Node (l, k, v, r, _) ->
+      | Node (l, k, v, r, _, _) ->
         (match cmp k' k with
          | Eq -> Some v
          | Lt -> aux l
@@ -150,7 +161,7 @@ end = struct
   let to_list t =
     let rec aux acc = function
       | Empty -> acc
-      | Node (l, k, v, r, _) -> aux ((k, v) :: aux acc r) l
+      | Node (l, k, v, r, _, _) -> aux ((k, v) :: aux acc r) l
     in
     aux [] t
   ;;
