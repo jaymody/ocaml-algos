@@ -33,7 +33,18 @@ module Make (Key : Comparable) = struct
        | _ -> l, k, v, r)
   ;;
 
-  let add k' v' t =
+  let insert k' v' t =
+    let rec aux = function
+      | Empty -> create Empty k' v' empty
+      | Node (l, k, v, r, _) ->
+        (match cmp k' k with
+         | Lt | Eq -> create (aux l) k v r
+         | Gt -> create l k v (aux r))
+    in
+    aux t
+  ;;
+
+  let upsert k' v' t =
     let rec aux = function
       | Empty -> create Empty k' v' empty
       | Node (l, k, v, r, _) ->
