@@ -2,44 +2,7 @@ open Algos
 module StringAvl = Avl.Make (String)
 module IntAvl = Avl.Make (Int)
 
-let rec calc_height = function
-  | IntAvl.Empty -> 0
-  | IntAvl.Node (l, _, _, r, _, _) -> 1 + max (calc_height l) (calc_height r)
-;;
-
-let rec calc_size = function
-  | IntAvl.Empty -> 0
-  | IntAvl.Node (l, _, _, r, _, _) -> 1 + calc_size l + calc_size r
-;;
-
-let rec is_height_balanced = function
-  | IntAvl.Empty -> true
-  | IntAvl.Node (l, _, _, r, h, n) as node ->
-    is_height_balanced l
-    && is_height_balanced r
-    && abs (calc_height l - calc_height r) < 2
-    && h = calc_height node
-    && n = calc_size node
-;;
-
-let () =
-  let open IntAvl in
-  let list = List.init 10000 (fun x -> x) in
-  let tree = List.fold_left (fun tree num -> upsert num (-num) tree) empty list in
-  assert (size tree = 10000);
-  assert (to_list tree |> List.map fst = list);
-  assert (calc_height tree < 20);
-  assert (is_height_balanced tree);
-  let list = List.init (10000 - 5000) (fun x -> x) in
-  let tree = List.fold_left (fun tree num -> snd (remove num tree)) tree list in
-  assert (size tree = 5000);
-  assert (to_list tree |> List.map (fun (num, _) -> num - 5000) = list);
-  assert (calc_height tree < 15);
-  assert (is_height_balanced tree)
-;;
-
-(* Same tests as BST *)
-
+(* test basics via String keys *)
 let () =
   let open StringAvl in
   let tree =
@@ -63,6 +26,7 @@ let () =
   assert (find "apple" tree = Some 20)
 ;;
 
+(* test basics via Int keys *)
 let () =
   let open IntAvl in
   let tree =
@@ -98,6 +62,7 @@ let () =
   assert (size tree = 8)
 ;;
 
+(* test insert *)
 let () =
   let open IntAvl in
   let tree =
@@ -113,4 +78,70 @@ let () =
   in
   let _, tree = remove 4 tree in
   assert (to_list tree |> List.map fst = [ 1; 2; 3; 3; 4; 4; 4 ])
+;;
+
+(* test scaling *)
+let () =
+  let open IntAvl in
+  let rec calc_height = function
+    | Empty -> 0
+    | Node (l, _, _, r, _, _) -> 1 + max (calc_height l) (calc_height r)
+  in
+  let rec calc_size = function
+    | Empty -> 0
+    | Node (l, _, _, r, _, _) -> 1 + calc_size l + calc_size r
+  in
+  let rec is_height_balanced = function
+    | Empty -> true
+    | Node (l, _, _, r, h, n) as node ->
+      is_height_balanced l
+      && is_height_balanced r
+      && abs (calc_height l - calc_height r) < 2
+      && h = calc_height node
+      && n = calc_size node
+  in
+  let list = List.init 10000 (fun x -> x) in
+  let tree = List.fold_left (fun tree num -> upsert num (-num) tree) empty list in
+  assert (size tree = 10000);
+  assert (to_list tree |> List.map fst = list);
+  assert (calc_height tree < 20);
+  assert (is_height_balanced tree);
+  let list = List.init (10000 - 5000) (fun x -> x) in
+  let tree = List.fold_left (fun tree num -> snd (remove num tree)) tree list in
+  assert (size tree = 5000);
+  assert (to_list tree |> List.map (fun (num, _) -> num - 5000) = list);
+  assert (calc_height tree < 15);
+  assert (is_height_balanced tree)
+;;
+
+(* test min max stuff *)
+let () =
+  let open IntAvl in
+  let tree =
+    empty
+    |> upsert 4 0
+    |> upsert 1 0
+    |> upsert 6 0
+    |> upsert 2 0
+    |> upsert 3 0
+    |> upsert 5 0
+    |> upsert 7 0
+  in
+  let mn, tree = remove_min tree in
+  assert (mn = Some (1, 0));
+  assert (find 1 tree = None);
+  assert (to_list tree |> List.map fst = [ 2; 3; 4; 5; 6; 7 ]);
+  let mn, tree = remove_min tree in
+  assert (mn = Some (2, 0));
+  let mx, tree = remove_max tree in
+  assert (mx = Some (7, 0));
+  let mn, tree = remove_min tree in
+  assert (mn = Some (3, 0));
+  let mx, tree = remove_max tree in
+  assert (mx = Some (6, 0));
+  assert (to_list tree |> List.map fst = [ 4; 5 ]);
+  assert (remove_min (empty |> upsert 10 0) = (Some (10, 0), empty));
+  assert (remove_max (empty |> upsert 10 0) = (Some (10, 0), empty));
+  assert (remove_min empty = (None, empty));
+  assert (remove_max empty = (None, empty))
 ;;

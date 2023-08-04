@@ -55,6 +55,18 @@ module Make (Key : Comparable) : sig
   (* Returns the key-value pairs in the tree in a list sorted in
      ascending order. *)
   val to_list : 'a t -> (key * 'a) list
+
+  (* Returns the min key-value pair in the tree if it exists (else None). *)
+  val get_min : 'a t -> (key * 'a) option
+
+  (* Returns the min key-value pair from the tree and returns it. *)
+  val remove_min : 'a t -> (key * 'a) option * 'a t
+
+  (* Returns the max key-value pair in the tree if it exists (else None). *)
+  val get_max : 'a t -> (key * 'a) option
+
+  (* Returns the max key-value pair from the tree and returns it. *)
+  val remove_max : 'a t -> (key * 'a) option * 'a t
 end = struct
   type key = Key.t
 
@@ -156,6 +168,34 @@ end = struct
          | Gt -> aux r)
     in
     aux t
+  ;;
+
+  let rec get_min = function
+    | Empty -> None
+    | Node (Empty, k, v, _, _, _) -> Some (k, v)
+    | Node (l, _, _, _, _, _) -> get_min l
+  ;;
+
+  let rec remove_min = function
+    | Empty -> None, Empty
+    | Node (Empty, k, v, r, _, _) -> Some (k, v), r
+    | Node (l, k, v, r, _, _) ->
+      let e, l = remove_min l in
+      e, create l k v r
+  ;;
+
+  let rec get_max = function
+    | Empty -> None
+    | Node (Empty, k, v, _, _, _) -> Some (k, v)
+    | Node (_, _, _, r, _, _) -> get_max r
+  ;;
+
+  let rec remove_max = function
+    | Empty -> None, Empty
+    | Node (l, k, v, Empty, _, _) -> Some (k, v), l
+    | Node (l, k, v, r, _, _) ->
+      let e, r = remove_max r in
+      e, create l k v r
   ;;
 
   let to_list t =
