@@ -6,7 +6,7 @@ I try to keep the implementations as simple as possible for educational purposes
 ### Development
 Dependencies:
 ```shell
-opam switch create .
+opam switch create . -w
 ```
 
 Build project:

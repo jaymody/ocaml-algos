@@ -145,3 +145,24 @@ let () =
   assert (remove_min empty = (None, empty));
   assert (remove_max empty = (None, empty))
 ;;
+
+(* test with a custom key module *)
+module CustomKey = struct
+  type t = string * int
+
+  let compare (_, a) (_, b) = compare a b
+end
+
+let () =
+  let open Avl.Make (CustomKey) in
+  let tree =
+    empty
+    |> upsert ("a", 5) "old"
+    |> upsert ("b", 2) "old"
+    |> upsert ("c", 7) "old"
+    |> upsert ("d", 2) "new"
+    |> upsert ("e", 1) "old"
+  in
+  assert (
+    to_list tree = [ ("e", 1), "old"; ("b", 2), "new"; ("a", 5), "old"; ("c", 7), "old" ])
+;;

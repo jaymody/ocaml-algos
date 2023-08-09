@@ -74,6 +74,11 @@ end = struct
     | Empty
     | Node of 'a t * key * 'a * 'a t * int * int
 
+  let cmp a b =
+    let diff = Key.compare a b in
+    if diff < 0 then Lt else if diff > 0 then Gt else Eq
+  ;;
+
   let empty = Empty
 
   let size = function
