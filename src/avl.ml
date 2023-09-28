@@ -54,7 +54,7 @@ module Make (Key : Comparable) : sig
      return it's associated value inside a Some option (in addition to the new
      tree with the key-value pair removed). Otherwise, we return None and the
      unmodified tree. *)
-  val remove : key -> 'a t -> 'a option * 'a t
+  val pop : key -> 'a t -> 'a option * 'a t
 
   (* Finds the value associated with the key in the tree. If the value doesn't
      exist, we return None, else we return a Some of the value. *)
@@ -68,13 +68,13 @@ module Make (Key : Comparable) : sig
   val get_min : 'a t -> (key * 'a) option
 
   (* Returns the min key-value pair from the tree and returns it. *)
-  val remove_min : 'a t -> (key * 'a) option * 'a t
+  val pop_min : 'a t -> (key * 'a) option * 'a t
 
   (* Returns the max key-value pair in the tree if it exists (else None). *)
   val get_max : 'a t -> (key * 'a) option
 
   (* Returns the max key-value pair from the tree and returns it. *)
-  val remove_max : 'a t -> (key * 'a) option * 'a t
+  val pop_max : 'a t -> (key * 'a) option * 'a t
 end = struct
   type key = Key.t
 
@@ -150,7 +150,7 @@ end = struct
     aux t
   ;;
 
-  let remove k t =
+  let pop k t =
     let rec pop_successor n =
       match n.l with
       | Empty -> (n.k, n.v), n.r
@@ -197,11 +197,11 @@ end = struct
     | Node { l; _ } -> get_min l
   ;;
 
-  let rec remove_min = function
+  let rec pop_min = function
     | Empty -> None, Empty
     | Node { l = Empty; k; v; r; _ } -> Some (k, v), r
     | Node n ->
-      let e, l = remove_min n.l in
+      let e, l = pop_min n.l in
       e, bal { n with l }
   ;;
 
@@ -211,11 +211,11 @@ end = struct
     | Node { r; _ } -> get_max r
   ;;
 
-  let rec remove_max = function
+  let rec pop_max = function
     | Empty -> None, Empty
     | Node { l; k; v; r = Empty; _ } -> Some (k, v), l
     | Node n ->
-      let e, r = remove_max n.r in
+      let e, r = pop_max n.r in
       e, bal { n with r }
   ;;
 

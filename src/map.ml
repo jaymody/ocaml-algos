@@ -26,7 +26,7 @@ module Make (Key : Comparable) : Map with type key = Key.t = struct
   let empty = AvlTree.empty
   let put k v t = AvlTree.upsert k v t
   let get k t = AvlTree.find k t
-  let pop k t = AvlTree.remove k t
+  let pop k t = AvlTree.pop k t
   let size t = AvlTree.size t
   let is_empty t = size t = 0
 end

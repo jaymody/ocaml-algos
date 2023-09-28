@@ -14,11 +14,11 @@ let () =
   assert (find "cat" tree = Some (-3));
   assert (find "dog" tree = Some 0);
   assert (find "elephant" tree = None);
-  let res, tree = remove "banana" tree in
+  let res, tree = pop "banana" tree in
   assert (res = Some 5);
   assert (size tree = 3);
   assert (find "banana" tree = None);
-  let res, tree = remove "banana" tree in
+  let res, tree = pop "banana" tree in
   assert (res = None);
   assert (size tree = 3);
   assert (find "dog" tree = Some 0);
@@ -48,15 +48,15 @@ let () =
   in
   assert (size tree = 13);
   assert (to_list tree |> List.map fst = [ 0; 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12 ]);
-  let res, tree = remove 12 tree in
+  let res, tree = pop 12 tree in
   assert (Option.is_some res);
-  let res, tree = remove 5 tree in
+  let res, tree = pop 5 tree in
   assert (Option.is_some res);
-  let res, tree = remove 8 tree in
+  let res, tree = pop 8 tree in
   assert (Option.is_some res);
-  let res, tree = remove 0 tree in
+  let res, tree = pop 0 tree in
   assert (Option.is_some res);
-  let res, tree = remove 3 tree in
+  let res, tree = pop 3 tree in
   assert (Option.is_some res);
   assert (to_list tree |> List.map fst = [ 1; 2; 4; 6; 7; 9; 10; 11 ]);
   assert (size tree = 8)
@@ -76,7 +76,7 @@ let () =
     |> insert 4 40
     |> insert 4 400
   in
-  let _, tree = remove 4 tree in
+  let _, tree = pop 4 tree in
   assert (to_list tree |> List.map fst = [ 1; 2; 3; 3; 4; 4; 4 ])
 ;;
 
@@ -107,7 +107,7 @@ let () =
   assert (calc_height tree < 20);
   assert (is_height_balanced tree);
   let list = List.init (10000 - 5000) (fun x -> x) in
-  let tree = List.fold_left (fun tree num -> snd (remove num tree)) tree list in
+  let tree = List.fold_left (fun tree num -> snd (pop num tree)) tree list in
   assert (size tree = 5000);
   assert (to_list tree |> List.map (fun (num, _) -> num - 5000) = list);
   assert (calc_height tree < 15);
@@ -127,23 +127,23 @@ let () =
     |> upsert 5 0
     |> upsert 7 0
   in
-  let mn, tree = remove_min tree in
+  let mn, tree = pop_min tree in
   assert (mn = Some (1, 0));
   assert (find 1 tree = None);
   assert (to_list tree |> List.map fst = [ 2; 3; 4; 5; 6; 7 ]);
-  let mn, tree = remove_min tree in
+  let mn, tree = pop_min tree in
   assert (mn = Some (2, 0));
-  let mx, tree = remove_max tree in
+  let mx, tree = pop_max tree in
   assert (mx = Some (7, 0));
-  let mn, tree = remove_min tree in
+  let mn, tree = pop_min tree in
   assert (mn = Some (3, 0));
-  let mx, tree = remove_max tree in
+  let mx, tree = pop_max tree in
   assert (mx = Some (6, 0));
   assert (to_list tree |> List.map fst = [ 4; 5 ]);
-  assert (remove_min (empty |> upsert 10 0) = (Some (10, 0), empty));
-  assert (remove_max (empty |> upsert 10 0) = (Some (10, 0), empty));
-  assert (remove_min empty = (None, empty));
-  assert (remove_max empty = (None, empty))
+  assert (pop_min (empty |> upsert 10 0) = (Some (10, 0), empty));
+  assert (pop_max (empty |> upsert 10 0) = (Some (10, 0), empty));
+  assert (pop_min empty = (None, empty));
+  assert (pop_max empty = (None, empty))
 ;;
 
 (* test with a custom key module *)

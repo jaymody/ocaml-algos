@@ -27,7 +27,7 @@ module Make (Key : Comparable) : Pq with type elt = Key.t = struct
   let push e q = AvlTree.insert e 0 q
 
   let pop q =
-    let e, q = AvlTree.remove_min q in
+    let e, q = AvlTree.pop_min q in
     Option.map fst e, q
   ;;
 
