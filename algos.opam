@@ -2,12 +2,17 @@ opam-version: "2.0"
 name: "algos"
 maintainer: "Jay Mody <jaykmody@gmail.com>"
 authors: "Jay Mody <jaykmody@gmail.com>"
-description: "Simple data structure and algorithm implementations in OCaml."
+synopsis: "Simple data structure and algorithm implementations in OCaml"
 license: "MIT"
 homepage: "https://github.com/jaymody/ocaml-algos"
 bug-reports: "https://github.com/jaymody/ocaml-algos/issues"
 build: ["dune" "build" "-p" name "-j" jobs]
 depends: [
-    "ocaml" {>= "4.14" & < "5.2"} # < "5.2" is required for compatability with ocaml-lsp-server
+    "ocaml"
     "dune"
+    # using with-test for dev dependencies as the with-dev-setup is only in
+    # opam 2.2.0, which is in alpha
+    "ocamlformat"  { with-test }
+    "utop" { with-test }
+    "ocaml-lsp-server" { with-test }
 ]
