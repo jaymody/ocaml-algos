@@ -1,6 +1,6 @@
 open Algos
-module StringAvl = Avl.Make (String)
-module IntAvl = Avl.Make (Int)
+module StringAvl = Avl.MakeKV (String)
+module IntAvl = Avl.MakeKV (Int)
 
 (* test basics via String keys *)
 let () =
@@ -82,24 +82,7 @@ let () =
 
 (* test scaling *)
 let () =
-  let open IntAvl in
-  let rec calc_height = function
-    | Empty -> 0
-    | Node { l; r; _ } -> 1 + max (calc_height l) (calc_height r)
-  in
-  let rec calc_size = function
-    | Empty -> 0
-    | Node { l; r; _ } -> 1 + calc_size l + calc_size r
-  in
-  let rec is_height_balanced = function
-    | Empty -> true
-    | Node { l; r; h; s; _ } as node ->
-      is_height_balanced l
-      && is_height_balanced r
-      && abs (calc_height l - calc_height r) < 2
-      && h = calc_height node
-      && s = calc_size node
-  in
+  let open Avl.Make (Int) in
   let list = List.init 10000 (fun x -> x) in
   let tree = List.fold_left (fun tree num -> upsert num (-num) tree) empty list in
   assert (size tree = 10000);
@@ -165,4 +148,46 @@ let () =
   in
   assert (
     to_list tree = [ ("e", 1), "old"; ("b", 2), "new"; ("a", 5), "old"; ("c", 7), "old" ])
+;;
+
+(* test MakeJustV variant *)
+let () =
+  let open Avl.MakeJustV (Int) in
+  let tree =
+    empty
+    |> insert 5
+    |> upsert 5
+    |> insert 5
+    |> insert 2
+    |> insert 1
+    |> upsert 3
+    |> insert 4
+    |> insert 4
+    |> upsert 1
+    |> insert 1
+  in
+  assert (to_list tree = [ 1; 1; 2; 3; 4; 4; 5; 5 ]);
+  assert (get_min tree = Some 1);
+  assert (get_max tree = Some 5);
+  let res, tree = pop_min tree in
+  assert (res = Some 1);
+  let res, tree = pop_min tree in
+  assert (res = Some 1);
+  let res, tree = pop_min tree in
+  assert (res = Some 2);
+  let res, tree = remove 3 tree in
+  assert res;
+  assert (mem 4 tree);
+  let res, tree = pop_min tree in
+  assert (res = Some 4);
+  assert (mem 4 tree);
+  let res, tree = remove 5 tree in
+  assert res;
+  let res, tree = pop_max tree in
+  assert (res = Some 5);
+  let res, tree = pop_max tree in
+  assert (res = Some 4);
+  assert (not (mem 4 tree));
+  let res, _ = pop_max tree in
+  assert (res = None)
 ;;
