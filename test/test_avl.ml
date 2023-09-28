@@ -85,20 +85,20 @@ let () =
   let open IntAvl in
   let rec calc_height = function
     | Empty -> 0
-    | Node (l, _, _, r, _, _) -> 1 + max (calc_height l) (calc_height r)
+    | Node { l; r; _ } -> 1 + max (calc_height l) (calc_height r)
   in
   let rec calc_size = function
     | Empty -> 0
-    | Node (l, _, _, r, _, _) -> 1 + calc_size l + calc_size r
+    | Node { l; r; _ } -> 1 + calc_size l + calc_size r
   in
   let rec is_height_balanced = function
     | Empty -> true
-    | Node (l, _, _, r, h, n) as node ->
+    | Node { l; r; h; s; _ } as node ->
       is_height_balanced l
       && is_height_balanced r
       && abs (calc_height l - calc_height r) < 2
       && h = calc_height node
-      && n = calc_size node
+      && s = calc_size node
   in
   let list = List.init 10000 (fun x -> x) in
   let tree = List.fold_left (fun tree num -> upsert num (-num) tree) empty list in
