@@ -229,6 +229,7 @@ module MakeJustV (Key : Comparable) : sig
   val insert : key -> t -> t
   val upsert : key -> t -> t
   val remove : key -> t -> bool * t
+  val remove_exn : key -> t -> t
   val mem : key -> t -> bool
   val to_list : t -> key list
   val get_min : t -> key option
@@ -253,6 +254,12 @@ end = struct
   let remove k t =
     let x, t = AvlT.pop k t in
     Option.is_some x, t
+  ;;
+
+  let remove_exn k t =
+    match AvlT.pop k t with
+    | None, _ -> invalid_arg "key not in tree"
+    | _, t -> t
   ;;
 
   let mem k t = AvlT.find k t |> Option.is_some
