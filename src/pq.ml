@@ -15,24 +15,22 @@ module type Pq = sig
   val peek : queue -> elt option
   val size : queue -> int
   val is_empty : queue -> bool
+  val to_list : queue -> elt list
 end
 
 module Make (Key : Comparable) : Pq with type elt = Key.t = struct
-  module AvlTree = Avl.Make (Key)
+  module AvlTree = Avl.MakeJustV (Key)
 
   type elt = AvlTree.key
-  type queue = int AvlTree.t
+  type queue = AvlTree.t
 
   let empty = AvlTree.empty
-  let push e q = AvlTree.insert e 0 q
-
-  let pop q =
-    let e, q = AvlTree.pop_min q in
-    Option.map fst e, q
-  ;;
+  let push e q = AvlTree.insert e q
+  let pop q = AvlTree.pop_min q
 
   (* TODO: Peek can be made O(1) if we cache the min and store it one push/pop. *)
-  let peek q = Option.map fst (AvlTree.get_min q)
+  let peek q = AvlTree.get_min q
   let size q = AvlTree.size q
   let is_empty q = size q = 0
+  let to_list q = AvlTree.to_list q
 end
