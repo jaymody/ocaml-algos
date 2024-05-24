@@ -18,7 +18,7 @@ module type Map = sig
 end
 
 module Make (Key : Comparable) : Map with type key = Key.t = struct
-  module AvlTree = Avl.Make (Key)
+  module AvlTree = Avl.MakeKV (Key)
 
   type key = AvlTree.key
   type 'a t = 'a AvlTree.t
